@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Barber</title>
+    <link rel="stylesheet" href="Assets/Style.css">
+</head>
+<body>
+    <div class="horario-bar">
+        <p>Horário de funcionamento: Seg a Sáb, 08:00 às 19:00</p>
+    </div>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="Assets/img/logo.png" alt="Logo Model Barber">
+            </div>
+            <nav class="nav-links">
+                <button class="nav-btn" id="btnInicio">Início</button>
+                <button class="nav-btn" id="btnAgende">Agende Aqui</button>
+                    <button class="nav-btn" id="btnFaleConosco">Fale Conosco</button>
+            </nav>
+            <div class="auth-buttons" id="authButtonsHeader">
+                <button class="btn-cadastro" id="btnCadastro">Cadastrar-se</button>
+                <button class="btn-login" id="btnLogin">Login</button>
+            </div>
+            <!-- Perfil do usuário no header (desktop) -->
+            <div id="perfilHeader" class="perfil-header" style="display:none;"></div>
+            <button class="hamburger" id="btnMenuMobile" aria-label="Abrir menu lateral">
+                &#9776;
+            </button>
+        </div>
+    </header>
+    <section id="inicio" class="inicio-section">
+        <div class="inicio-gradient"></div>
+        <div class="inicio-content">
+            <h1>Quem Somos</h1>
+            <p>
+                Bem-vindo à Model Barber! Somos uma barbearia dedicada a oferecer cortes modernos, atendimento de qualidade e um ambiente acolhedor para todos os nossos clientes. Nossa equipe é apaixonada por estilo, tradição e inovação, garantindo sempre a melhor experiência para você.
+            </p>
+            <button class="btn-agende-inicio" id="btnAgendeInicio">Agende Seu Corte</button>
+        </div>
+    </section>
+
+    <!-- SECTION AGENDAR -->
+    <section id="agendar" class="agendar-section" style="display:none;">
+        <div class="agendar-container">
+            <div class="agendar-header">
+                <button onclick="mostrarSection('inicio')" class="btn-voltar-inicio">&larr; Voltar</button>
+                <h1>Agende Seu Corte</h1>
+            </div>
+
+            <!-- Indicador de etapas -->
+            <div class="agendar-steps-indicator">
+                <button class="agendar-step-btn active" id="agendarStepBtn1">1. Serviços</button>
+                <button class="agendar-step-btn" id="agendarStepBtn2">2. Barbeiro</button>
+                <button class="agendar-step-btn" id="agendarStepBtn3">3. Data e Hora</button>
+                <button class="agendar-step-btn" id="agendarStepBtn4">4. Confirmação</button>
+            </div>
+
+            <!-- STEP 1: Serviços -->
+            <div id="agendarStep1" class="agendar-step-content">
+                <h2>Escolha os Serviços</h2>
+                <div id="agendarServicosGrid" class="servicos-grid"></div>
+                <div style="margin:1.5rem 0;color:#ffd700;font-weight:600;">Duração total: <span id="agendarDuracao">-</span></div>
+                <div class="agendar-actions">
+                    <button id="agendarProx1" class="btn-primary">Próximo</button>
+                    <button onclick="mostrarSection('inicio')" class="btn-secondary">Cancelar</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Barbeiro -->
+            <div id="agendarStep2" class="agendar-step-content" style="display:none;">
+                <h2>Preferência de Barbeiro (Opcional)</h2>
+                <p style="color:#d0d0d0;margin-bottom:1.5rem;">Deixe em branco para que qualquer barbeiro disponível atenda você.</p>
+                <div style="margin:1.5rem 0;">
+                    <select id="agendarBarbeiro" style="width:100%;padding:.5rem;margin-top:.5rem;border:1px solid #444;background:#222;color:#f5f5f5;border-radius:6px;">
+                        <option value="">Sem preferência</option>
+                    </select>
+                </div>
+                <div class="agendar-actions">
+                    <button id="agendarVoltar2" class="btn-secondary">Voltar</button>
+                    <button id="agendarProx2" class="btn-primary">Próximo</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Data e Hora -->
+            <div id="agendarStep3" class="agendar-step-content" style="display:none;">
+                <h2>Data e Horário</h2>
+                <div style="margin:1.5rem 0;">
+                    <label><b>Data</b></label>
+                    <input type="date" id="agendarData" style="width:100%;padding:.5rem;margin-top:.5rem;border:1px solid #444;background:#222;color:#f5f5f5;border-radius:6px;" min="">
+                </div>
+                <div style="margin:1.5rem 0;">
+                    <label><b>Horário</b></label>
+                    <div id="agendarHorarios" class="horarios-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:.5rem;margin-top:.5rem;"></div>
+                </div>
+                <div class="agendar-actions">
+                    <button id="agendarVoltar3" class="btn-secondary">Voltar</button>
+                    <button id="agendarProx3" class="btn-primary">Próximo</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Confirmação -->
+            <div id="agendarStep4" class="agendar-step-content" style="display:none;">
+                <h2>Confirmação do Agendamento</h2>
+                <div style="background:#1a1a1a;padding:1.5rem;border-radius:8px;margin:1.5rem 0;">
+                    <div style="margin:1rem 0;"><b>Serviços:</b>
+                        <div id="agendarResumoServicos" style="margin-left:1rem;color:#ffd700;"></div>
+                    </div>
+                    <div style="margin:1rem 0;"><b>Data/Hora:</b> <span id="agendarResumoData" style="color:#ffd700;"></span></div>
+                    <div style="margin:1rem 0;"><b>Barbeiro:</b> <span id="agendarResumoBarbeiro" style="color:#ffd700;"></span></div>
+                    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #444;">
+                        <div><b>Duração:</b> <span id="agendarResumoDuracao" style="color:#ffd700;"></span></div>
+                        <div style="font-size:1.2rem;margin-top:.5rem;"><b>Valor Total:</b> <span id="agendarResumoValor" style="color:#ffd700;"></span></div>
+                    </div>
+                </div>
+                <div class="agendar-actions">
+                    <button id="agendarVoltar4" class="btn-secondary">Voltar</button>
+                    <button id="agendarConfirmar" class="btn-primary">Confirmar Agendamento</button>
+                </div>
+            </div>
+
+            <div id="agendarMsg" style="margin-top:1rem;text-align:center;color:#d32f2f;"></div>
+        </div>
+    </section>
+
+    <!-- SECTION PERFIL -->
+    <section id="perfil" class="perfil-section" style="display:none;">
+        <div class="perfil-container">
+            <div class="perfil-header-sec">
+                <button onclick="mostrarSection('inicio')" class="btn-voltar-inicio">&larr; Voltar</button>
+                <h1>Meu Perfil</h1>
+            </div>
+
+            <div class="perfil-tabs">
+                <button class="perfil-tab active" id="perfilAba">Informações</button>
+                <button class="perfil-tab" id="agendamentosAba">Meus Agendamentos</button>
+            </div>
+
+            <!-- ABA INFORMAÇÕES -->
+            <div id="perfilConteudo" class="perfil-tab-content">
+                <div class="perfil-card">
+                    <div class="perfil-avatar-large" id="perfilAvatar"></div>
+                    <h2 id="perfilNome"></h2>
+                    <p id="perfilEmail" style="color:#ffd700;"></p>
+                    <p id="perfilTelefone"></p>
+                    <p id="perfilRazao" style="margin-top:1rem;font-weight:600;"></p>
+                </div>
+
+                <div id="formEditarPerfil" style="display:none;background:#1a1a1a;padding:1.5rem;border-radius:8px;margin:1.5rem 0;">
+                    <form id="formEdit">
+                        <div style="margin:1rem 0;">
+                            <label><b>Nome</b></label>
+                            <input type="text" id="editNome" style="width:100%;padding:.5rem;margin-top:.5rem;border:1px solid #444;background:#222;color:#f5f5f5;border-radius:6px;">
+                        </div>
+                        <div style="margin:1rem 0;">
+                            <label><b>Sobrenome</b></label>
+                            <input type="text" id="editSobrenome" style="width:100%;padding:.5rem;margin-top:.5rem;border:1px solid #444;background:#222;color:#f5f5f5;border-radius:6px;">
+                        </div>
+                        <div style="margin:1rem 0;">
+                            <label><b>Telefone</b></label>
+                            <input type="tel" id="editTelefone" style="width:100%;padding:.5rem;margin-top:.5rem;border:1px solid #444;background:#222;color:#f5f5f5;border-radius:6px;">
+                        </div>
+                        <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+                            <button type="submit" class="btn-primary" style="flex:1;">Salvar</button>
+                            <button type="button" id="btnCancelarEd" class="btn-secondary" style="flex:1;">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="perfil-actions">
+                    <button id="btnEditarPerfil" class="btn-primary" style="flex:1;">Editar Informações</button>
+                    <button id="btnLogout" class="btn-secondary" style="flex:1;">Sair da Conta</button>
+                </div>
+            </div>
+
+            <!-- ABA AGENDAMENTOS -->
+            <div id="agendamentosConteudo" class="perfil-tab-content" style="display:none;"></div>
+        </div>
+    </section>
+
+    <!-- SECTION BARBEARIA (PAINEL ADMIN) -->
+    <section id="barbearia" class="barbearia-section" style="display:none;">
+        <div class="barbearia-container">
+            <div class="barbearia-header">
+                <button onclick="mostrarSection('inicio')" class="btn-voltar-inicio">&larr; Voltar</button>
+                <h1>Painel Administrativo</h1>
+            </div>
+
+            <div class="barbearia-tabs">
+                <button class="barbearia-tab active" data-tab="agendamentos" id="tabBtnAgendamentos">Agendamentos</button>
+                <button class="barbearia-tab" data-tab="agendamentos-gerais" id="tabBtnAgendamentosGerais" style="display:none;">Agendamentos Gerais</button>
+                <button class="barbearia-tab" data-tab="servicos">Serviços</button>
+                <button class="barbearia-tab" data-tab="barbeiros">Barbeiros</button>
+                <button class="barbearia-tab" data-tab="geral">Geral</button>
+            </div>
+
+            <!-- ABA AGENDAMENTOS -->
+            <div id="tab-agendamentos" class="barbearia-tab-content active">
+                <div class="barbearia-subtabs">
+                    <button class="barbearia-subtab active" data-subtab="pendentes">Pendentes</button>
+                    <button class="barbearia-subtab" data-subtab="aceitos">Aceitos</button>
+                    <button class="barbearia-subtab" data-subtab="historico">Histórico</button>
+                </div>
+                <div id="subtab-pendentes" class="barbearia-subtab-content active"></div>
+                <div id="subtab-aceitos" class="barbearia-subtab-content" style="display:none;"></div>
+                <div id="subtab-historico" class="barbearia-subtab-content" style="display:none;"></div>
+            </div>
+
+            <!-- ABA AGENDAMENTOS GERAIS (Somente Chefes) -->
+            <div id="tab-agendamentos-gerais" class="barbearia-tab-content" style="display:none;">
+                <div class="barbearia-subtabs">
+                    <button class="barbearia-subtab active" data-subtab="gerais-pendentes">Pendentes</button>
+                    <button class="barbearia-subtab" data-subtab="gerais-aceitos">Aceitos</button>
+                    <button class="barbearia-subtab" data-subtab="gerais-historico">Histórico</button>
+                </div>
+                <div id="subtab-gerais-pendentes" class="barbearia-subtab-content active"></div>
+                <div id="subtab-gerais-aceitos" class="barbearia-subtab-content" style="display:none;"></div>
+                <div id="subtab-gerais-historico" class="barbearia-subtab-content" style="display:none;"></div>
+            </div>
+
+            <!-- ABA SERVIÇOS (Apenas para Chefes) -->
+            <div id="tab-servicos" class="barbearia-tab-content" style="display:none;"></div>
+
+            <!-- ABA BARBEIROS (Apenas para Chefes) -->
+            <div id="tab-barbeiros" class="barbearia-tab-content" style="display:none;"></div>
+
+            <!-- ABA GERAL (Apenas para Chefes) -->
+            <div id="tab-geral" class="barbearia-tab-content" style="display:none;">
+                <div class="barbearia-subtabs">
+                    <button class="barbearia-subtab active" data-subtab="contato">Link de Contato</button>
+                    <button class="barbearia-subtab" data-subtab="horarios">Horários</button>
+                </div>
+                <div id="subtab-contato" class="barbearia-subtab-content active"></div>
+                <div id="subtab-horarios" class="barbearia-subtab-content" style="display:none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <aside class="sidebar-menu" id="sidebarMenu">
+        <nav>
+            <button class="sidebar-link" id="sidebarInicio">Início</button>
+            <button class="sidebar-link" id="sidebarAgende">Agende Aqui</button>
+            <button class="sidebar-link" id="sidebarContato">Fale Conosco</button>
+        </nav>
+        <div class="sidebar-auth" id="sidebarAuth">
+            <button class="btn-sidebar-cadastro" id="sidebarCadastro">Cadastrar-se</button>
+            <button class="btn-sidebar-login" id="sidebarLogin">Login</button>
+        </div>
+        <!-- Perfil do usuário na sidebar (mobile) -->
+        <div id="perfilSidebar" class="sidebar-perfil" style="display:none;"></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Modal de Cadastro/Login -->
+    <div id="modalAuth" class="modal-auth" style="display:none;">
+      <div class="modal-auth-content">
+        <button class="modal-auth-close" id="closeModalAuth">&times;</button>
+        <div class="modal-auth-tabs">
+          <button id="tabCadastro" class="modal-auth-tab active">Cadastrar</button>
+          <button id="tabLogin" class="modal-auth-tab">Login</button>
+        </div>
+        <form id="formCadastro" class="modal-auth-form">
+          <input type="text" id="cadNome" placeholder="Nome" required>
+          <input type="text" id="cadSobrenome" placeholder="Sobrenome" required>
+          <input type="email" id="cadEmail" placeholder="E-mail" required>
+          <input type="tel" id="cadTelefone" placeholder="Whatsapp" required>
+          <input type="password" id="cadSenha" placeholder="Senha" required>
+          <input type="password" id="cadConfirmarSenha" placeholder="Confirmar Senha" required>
+          <button type="submit" class="btn-auth">Cadastrar</button>
+        </form>
+        <form id="formLogin" class="modal-auth-form" style="display:none;">
+          <input type="email" id="loginEmail" placeholder="E-mail" required>
+          <input type="password" id="loginSenha" placeholder="Senha" required>
+          <button type="submit" class="btn-auth">Entrar</button>
+        </form>
+        <div id="authMsg" class="auth-msg"></div>
+      </div>
+    </div>
+
+    <!-- Modal Customizado para Confirmação -->
+    <div id="modalCustomConfirm" class="modal-custom" style="display:none;">
+        <div class="modal-custom-content">
+            <h3 id="modalCustomConfirmTitle">Confirmação</h3>
+            <p id="modalCustomConfirmMessage">Tem certeza?</p>
+            <div class="modal-custom-buttons">
+                <button id="modalCustomConfirmYes" class="btn-confirm">Sim</button>
+                <button id="modalCustomConfirmNo" class="btn-cancel">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Genérico para Formulários -->
+    <div id="modalFormulario" class="modal-custom" style="display:none;">
+        <div class="modal-custom-content" style="max-width:400px;">
+            <h3 id="modalFormularioTitle">Formulário</h3>
+            <form id="formGenerico" style="display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;">
+                <!-- Campos dinâmicos serão adicionados aqui -->
+            </form>
+            <div style="display:flex;gap:1rem;">
+                <button id="btnFormOk" class="btn-confirm" style="flex:1;">OK</button>
+                <button id="btnFormCancel" class="btn-cancel" style="flex:1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="Assets/script.js"></script>
+</body>
+</html>
