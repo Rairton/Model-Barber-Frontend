@@ -1925,8 +1925,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             div.innerHTML = `
                 <div style="margin-bottom:2rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    <button id="btnNovoBarb" style="background:#ffd700;border:none;color:#000;padding:0.7rem 1.5rem;border-radius:6px;cursor:pointer;font-weight:600;">+ Adicionar Barbeiro</button>
-                    <button id="btnNovoChefeAdmin" style="background:#4caf50;border:none;color:#fff;padding:0.7rem 1.5rem;border-radius:6px;cursor:pointer;font-weight:600;">+ Adicionar Chefe (Admin)</button>
+                    <button id="btnDefinirCargoEmail" style="background:#ffd700;border:none;color:#000;padding:0.7rem 1.5rem;border-radius:6px;cursor:pointer;font-weight:700;">Definir cargo por e-mail</button>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
                     <div>
@@ -2054,59 +2053,71 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
 
-            // Adicionar novo barbeiro
-            document.getElementById('btnNovoBarb')?.addEventListener('click', async () => {
-                // Mostrar lista de clientes não-barbeiros
-                const naoBarbs = clientes.filter(c => !c.barbeiro && c.funcao !== 'chefe');
-                if (naoBarbs.length === 0) {
-                    exibirNotificacao('Nenhum cliente disponível para adicionar como barbeiro.');
+            // Definir cargo por e-mail (mais rápido quando tem muitos clientes)
+            document.getElementById('btnDefinirCargoEmail')?.addEventListener('click', async () => {
+                const resultado = await modalFormulario('Definir cargo por e-mail', [
+                    { id: 'email', label: 'Email do usuário', type: 'text', value: '', placeholder: 'ex: usuario@email.com' },
+                    {
+                        id: 'cargo',
+                        label: 'Cargo',
+                        type: 'select',
+                        value: 'barbeiro',
+                        opcoes: [
+                            { value: 'barbeiro', label: 'Barbeiro' },
+                            { value: 'chefe', label: 'Chefe (Admin)' }
+                        ]
+                    }
+                ]);
+                if (!resultado) return;
+
+                const email = (resultado.email || '').trim().toLowerCase();
+                const cargo = (resultado.cargo || '').trim();
+                if (!email || !cargo) return;
+
+                const cliente = clientes.find(c => ((c.email || '').trim().toLowerCase() === email));
+                if (!cliente) {
+                    exibirNotificacao('Nenhum usuário encontrado com esse email.');
                     return;
                 }
 
-                const opcoes = naoBarbs.map(c => ({ value: c._id, label: `${c.nome} ${c.sobrenome}` }));
-                const resultado = await modalFormulario('Adicionar Barbeiro', [
-                    { id: 'cliente', label: 'Selecione o cliente', type: 'select', value: '', opcoes }
-                ]);
-                if (!resultado || !resultado.cliente) return;
+                if (cargo === 'barbeiro') {
+                    if (cliente.barbeiro) {
+                        exibirNotificacao('Este usuário já é barbeiro.');
+                        return;
+                    }
+                    fetch(`${API_URL}/barbeiros/${cliente._id}/add`, { method: 'PATCH' })
+                        .then(res => {
+                            if (res.ok) {
+                                exibirNotificacao('Barbeiro adicionado!');
+                                carregarBarbeirosAdmin();
+                            } else {
+                                exibirNotificacao('Erro ao adicionar barbeiro.');
+                            }
+                        }).catch(() => exibirNotificacao('Erro de conexão.'));
+                    return;
+                }
 
-                const clienteId = resultado.cliente;
-                fetch(`${API_URL}/barbeiros/${clienteId}/add`, { method: 'PATCH' })
-                    .then(res => {
+                if (cargo === 'chefe') {
+                    if (cliente.funcao === 'chefe' && !cliente.barbeiro) {
+                        exibirNotificacao('Este usuário já é chefe (admin).');
+                        return;
+                    }
+                    fetch(`${API_URL}/barbeiros/${cliente._id}/funcao`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ funcao: 'chefe' })
+                    }).then(res => {
                         if (res.ok) {
-                            exibirNotificacao('Barbeiro adicionado!');
+                            exibirNotificacao('Cargo atualizado para chefe!');
                             carregarBarbeirosAdmin();
                         } else {
-                            exibirNotificacao('Erro ao adicionar.');
+                            exibirNotificacao('Erro ao promover para chefe.');
                         }
                     }).catch(() => exibirNotificacao('Erro de conexão.'));
-            });
-
-            // Adicionar chefe (admin) sem virar barbeiro
-            document.getElementById('btnNovoChefeAdmin')?.addEventListener('click', async () => {
-                const candidatos = clientes.filter(c => !c.barbeiro && c.funcao !== 'chefe');
-                if (candidatos.length === 0) {
-                    exibirNotificacao('Nenhum cliente disponível para promover a chefe (admin).');
                     return;
                 }
 
-                const opcoes = candidatos.map(c => ({ value: c._id, label: `${c.nome} ${c.sobrenome}` }));
-                const resultado = await modalFormulario('Adicionar Chefe (Admin)', [
-                    { id: 'cliente', label: 'Selecione o cliente', type: 'select', value: '', opcoes }
-                ]);
-                if (!resultado || !resultado.cliente) return;
-
-                fetch(`${API_URL}/barbeiros/${resultado.cliente}/funcao`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ funcao: 'chefe' })
-                }).then(res => {
-                    if (res.ok) {
-                        exibirNotificacao('Usuário promovido a chefe (admin)!');
-                        carregarBarbeirosAdmin();
-                    } else {
-                        exibirNotificacao('Erro ao promover.');
-                    }
-                }).catch(() => exibirNotificacao('Erro de conexão.'));
+                exibirNotificacao('Cargo inválido.');
             });
         } catch (e) {
             div.innerHTML = '<p style="color:#d32f2f;">Erro ao carregar.</p>';
