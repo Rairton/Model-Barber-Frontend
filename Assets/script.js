@@ -1,4 +1,4 @@
-const API_URL = 'https://model-barber-backend.onrender.com';
+const API_URL = 'https://model-barber-backend.onrender.com/api';
 let usuarioLogado = null;
 
 function exibirNotificacao(msg) {
@@ -2391,4 +2391,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     atualizarHorarioBar();
     atualizarAbaAgendamentosGeraisVisibilidade();
 });
+
 
